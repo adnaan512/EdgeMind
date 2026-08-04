@@ -1,0 +1,30 @@
+# =============================================
+# Example Experiment — MobileNetV2 on CIFAR-10
+# =============================================
+# This config inherits from base.yaml and overrides specific values.
+# Usage:
+#   config = EdgeMindConfig.from_yaml(
+#       "configs/experiments/example_experiment.yaml",
+#       base_config_path="configs/base.yaml"
+#   )
+
+# Override model settings
+model:
+  name: "mobilenet_v2"
+  pretrained: true
+  num_classes: 10
+
+# Override training for a quick experiment
+training:
+  epochs: 5
+  batch_size: 16
+  learning_rate: 0.0005
+
+# Experiment metadata
+experiment:
+  name: "mobilenetv2_cifar10_baseline"
+  description: "Baseline transfer learning with MobileNetV2 on CIFAR-10"
+  tags:
+    - "baseline"
+    - "transfer-learning"
+    - "mobilenet"

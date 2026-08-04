@@ -1,0 +1,50 @@
+# =============================================
+# EdgeMind AI — Base Configuration
+# =============================================
+# This is the default configuration that all experiments inherit from.
+# Experiment-specific configs override only the values they need.
+
+project:
+  name: "EdgeMind AI"
+  version: "0.1.0"
+  description: "A Modular Framework for Efficient Deep Learning and Edge AI"
+
+# Reproducibility
+seed: 42
+
+# Device settings
+device:
+  preferred: null  # null = auto-detect (CUDA → MPS → CPU)
+
+# Paths
+paths:
+  data_dir: "data"
+  output_dir: "outputs"
+  checkpoint_dir: "checkpoints"
+  log_dir: "logs"
+
+# Default model settings (overridden per experiment)
+model:
+  name: "mobilenet_v2"
+  pretrained: true
+  num_classes: 10
+
+# Default training settings
+training:
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: "adam"
+  scheduler: "cosine"
+
+# Default data settings
+data:
+  dataset: "cifar10"
+  image_size: 224
+  num_workers: 2
+  pin_memory: true
+
+# Logging
+logging:
+  level: "INFO"
+  save_to_file: true

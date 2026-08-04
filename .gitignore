@@ -1,0 +1,61 @@
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.eggs/
+
+# ===========================
+# Virtual Environments
+# ===========================
+venv/
+env/
+.env/
+.venv/
+
+# ===========================
+# PyTorch & Deep Learning
+# ===========================
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.bin
+checkpoints/
+runs/
+outputs/
+wandb/
+
+# ===========================
+# Jupyter Notebooks
+# ===========================
+.ipynb_checkpoints/
+
+# ===========================
+# IDE & Editors
+# ===========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===========================
+# OS Files
+# ===========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===========================
+# Data & Logs (user-specific)
+# ===========================
+data/
+logs/
+*.log
