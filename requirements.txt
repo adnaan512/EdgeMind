@@ -10,3 +10,6 @@ opencv-python-headless>=4.8.0
 
 # Development/Testing Dependencies
 pytest>=7.3.0
+
+# Demo App Dependencies
+streamlit>=1.30.0
