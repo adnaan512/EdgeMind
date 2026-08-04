@@ -1,20 +1,11 @@
-# =============================================
-# EdgeMind AI — Core Dependencies
-# =============================================
-# Deep Learning
+# EdgeMind AI Core Dependencies
 torch>=2.0.0
 torchvision>=0.15.0
-
-# Configuration
 pyyaml>=6.0
+numpy>=1.24.0
 
-# Pretty Console Output
-rich>=13.0.0
+# Optional Dependencies (Required for Phase 6 ONNX export)
+onnx>=1.14.0
 
-# Image Processing
-Pillow>=9.0.0
-
-# =============================================
-# Development & Testing
-# =============================================
-pytest>=7.0.0
+# Development/Testing Dependencies
+pytest>=7.3.0
