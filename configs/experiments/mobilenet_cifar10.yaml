@@ -1,0 +1,45 @@
+# =============================================
+# End-to-End Experiment: MobileNetV2 on CIFAR-10
+# =============================================
+# Run with: python tools/train.py --config configs/experiments/mobilenet_cifar10.yaml
+
+experiment:
+  name: "mobilenetv2_cifar10_transfer"
+  description: "Transfer learning on CIFAR-10 using MobileNetV2"
+
+# 1. Model Configuration
+model:
+  name: "image_classifier"
+  backbone_name: "mobilenet_v2"
+  num_classes: 10
+  pretrained: true
+  freeze_features: true   # Freeze backbone for faster transfer learning
+  dropout_rate: 0.2
+
+# 2. Data Configuration
+data:
+  dataset: "cifar10"
+  data_dir: "./data"
+  image_size: 32
+  num_workers: 2
+  pin_memory: true
+  mean: [0.4914, 0.4822, 0.4465]
+  std: [0.2470, 0.2435, 0.2616]
+  augmentation:
+    horizontal_flip: true
+    random_crop: true
+    padding: 4
+
+# 3. Training Configuration
+training:
+  epochs: 5               # Short run for demonstration
+  batch_size: 128
+  optimizer: "adam"
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  scheduler: "cosine"
+
+# 4. Output Paths
+paths:
+  checkpoint_dir: "checkpoints/mobilenet_cifar10"
+  log_dir: "logs/mobilenet_cifar10"
