@@ -20,6 +20,7 @@ model:
 data:
   dataset: "cifar10"
   data_dir: "./data"
+  kaggle_dataset: "adnanhassnain/cifar-10-python"
   image_size: 32
   num_workers: 2
   pin_memory: true

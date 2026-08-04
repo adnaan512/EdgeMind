@@ -1,0 +1,21 @@
+# =============================================
+# CIFAR-10 Data Configuration
+# =============================================
+# Standard configuration for CIFAR-10 experiments.
+
+data:
+  dataset: "cifar10"
+  data_dir: "./data"
+  image_size: 32
+  num_workers: 2
+  pin_memory: true
+  
+  # CIFAR-10 specific normalization statistics
+  mean: [0.4914, 0.4822, 0.4465]
+  std: [0.2470, 0.2435, 0.2616]
+  
+  # Augmentation pipeline for training
+  augmentation:
+    horizontal_flip: true
+    random_crop: true
+    padding: 4
