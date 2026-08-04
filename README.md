@@ -147,7 +147,7 @@ print(device_info)
 ## Roadmap
 
 - [x] Phase 1: Project Foundation & Architecture
-- [ ] Phase 2: Data Pipeline
+- [x] Phase 2: Data Pipeline
 - [ ] Phase 3: Model Zoo & Transfer Learning
 - [ ] Phase 4: Training Engine
 - [ ] Phase 5: Model Compression & Optimization
