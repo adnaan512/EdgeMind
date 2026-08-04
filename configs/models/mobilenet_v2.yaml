@@ -1,0 +1,13 @@
+# =============================================
+# MobileNetV2 Model Configuration
+# =============================================
+# MobileNetV2 is excellent for edge deployment due to
+# its depthwise separable convolutions.
+
+model:
+  name: "image_classifier"
+  backbone_name: "mobilenet_v2"
+  num_classes: 10
+  pretrained: true
+  freeze_features: true
+  dropout_rate: 0.2

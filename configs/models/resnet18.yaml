@@ -1,0 +1,13 @@
+# =============================================
+# ResNet18 Model Configuration
+# =============================================
+# ResNet18 serves as a strong baseline before attempting
+# to deploy lightweight models like MobileNet.
+
+model:
+  name: "image_classifier"
+  backbone_name: "resnet18"
+  num_classes: 10
+  pretrained: true
+  freeze_features: true
+  dropout_rate: 0.3
