@@ -56,6 +56,6 @@ desktop.ini
 # ===========================
 # Data & Logs (user-specific)
 # ===========================
-data/
+/data/
 logs/
 *.log
