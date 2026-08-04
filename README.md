@@ -152,7 +152,7 @@ print(device_info)
 - [x] Phase 4: Training Engine
 - [x] Phase 5: Model Compression & Optimization
 - [x] Phase 6: Inference Engine & Edge Simulation
-- [ ] Phase 7: Explainability & Visualization
+- [x] Phase 7: Explainability & Visualization
 - [ ] Phase 8: Research Report & Demo App
 
 ---

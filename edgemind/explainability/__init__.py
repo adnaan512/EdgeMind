@@ -1,1 +1,9 @@
-"""Explainability — Grad-CAM, feature maps, and model interpretability."""
+"""
+Explainability and visualization components for EdgeMind AI.
+"""
+
+from edgemind.explainability.gradcam import GradCAM
+
+__all__ = [
+    "GradCAM",
+]
