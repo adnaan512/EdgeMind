@@ -121,4 +121,4 @@ While the current pipeline successfully trains, compresses, and benchmarks edge 
 3. **Physical Hardware Deployment:** Take the exported `model.onnx` file and write a C++ deployment script to run it natively on a physical Raspberry Pi 4 using the NCNN or OpenVINO runtimes to measure real-world thermal and power draw constraints.
 
 ---
-*Built for Edge Computing Research*
+*Built for Edge Computing*
