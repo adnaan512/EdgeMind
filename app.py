@@ -1,9 +1,13 @@
+import os
 import streamlit as st
 import torch
 from torchvision import transforms
 from PIL import Image
 import numpy as np
 import time
+import psutil
+import pandas as pd
+import onnxruntime as ort
 
 from edgemind.models import MODELS
 from edgemind.core.config import EdgeMindConfig
@@ -60,11 +64,37 @@ def main():
     st.sidebar.header("Configuration")
     config_path = st.sidebar.text_input("Config YAML", value="configs/experiments/mobilenet_cifar10.yaml")
     checkpoint_path = st.sidebar.text_input("Checkpoint Path", value="")
+    onnx_path = st.sidebar.text_input("ONNX Model Path", value="model.onnx")
     
     # Load model
     try:
         model = load_model(config_path, checkpoint_path if checkpoint_path else None)
         st.sidebar.success("Model loaded successfully!")
+        
+        # Calculate Model Stats
+        config = EdgeMindConfig.from_yaml(config_path)
+        model_name = config.get("model", {}).get("backbone_name", "Unknown").upper()
+        input_size = config.get("data", {}).get("image_size", 32)
+        num_classes = config.get("model", {}).get("num_classes", "Unknown")
+        
+        params_count = sum(p.numel() for p in model.parameters()) / 1e6
+        
+        param_bytes = sum(p.nelement() * p.element_size() for p in model.parameters())
+        buffer_bytes = sum(b.nelement() * b.element_size() for b in model.buffers())
+        size_mb = (param_bytes + buffer_bytes) / (1024 * 1024)
+        
+        # Display Stats
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("### Model Details")
+        st.sidebar.markdown(f"**Model Name:** {model_name}")
+        st.sidebar.markdown(f"**Framework:** PyTorch")
+        st.sidebar.markdown(f"**Input Size:** {input_size}x{input_size}")
+        st.sidebar.markdown(f"**Classes:** {num_classes}")
+        st.sidebar.markdown(f"**Parameters:** {params_count:.1f}M")
+        st.sidebar.markdown(f"**Model Size:** {size_mb:.1f} MB")
+        st.sidebar.markdown(f"**FLOPs:** (Profile to calculate)")
+        st.sidebar.markdown("---")
+        
     except Exception as e:
         st.sidebar.error(f"Failed to load model: {e}")
         st.stop()
@@ -116,6 +146,90 @@ def main():
             else:
                 with col3:
                     st.warning("No Conv2d layer found for Grad-CAM.")
+                    
+    st.markdown("---")
+    with st.expander("🚀 Run Performance Benchmark (PyTorch vs ONNX)"):
+        st.markdown("Compare the raw PyTorch checkpoint against the ONNX deployment model.")
+        if st.button("Start Benchmark"):
+            if not os.path.exists(onnx_path):
+                st.error(f"ONNX model not found at '{onnx_path}'. Please ensure the file exists!")
+            else:
+                with st.spinner("Running Benchmark (50 iterations)..."):
+                    try:
+                        # Get dummy input
+                        input_shape = (1, 3, input_size, input_size)
+                        dummy_input = torch.randn(input_shape)
+                        
+                        # 1. PyTorch Benchmark
+                        pt_memory_before = psutil.Process(os.getpid()).memory_info().rss / (1024*1024)
+                        
+                        # Warmup
+                        for _ in range(10):
+                            _ = model(dummy_input)
+                        
+                        # Benchmark
+                        start_time = time.time()
+                        for _ in range(50):
+                            _ = model(dummy_input)
+                        pt_time = time.time() - start_time
+                        pt_latency = (pt_time / 50.0) * 1000
+                        pt_fps = 50.0 / pt_time
+                        
+                        pt_memory_after = psutil.Process(os.getpid()).memory_info().rss / (1024*1024)
+                        pt_memory_used = max(0.1, pt_memory_after - pt_memory_before) + size_mb
+                        
+                        # 2. ONNX Benchmark
+                        ort_session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+                        onnx_size_mb = os.path.getsize(onnx_path) / (1024*1024)
+                        
+                        onnx_dummy = dummy_input.numpy()
+                        ort_inputs = {ort_session.get_inputs()[0].name: onnx_dummy}
+                        
+                        onnx_memory_before = psutil.Process(os.getpid()).memory_info().rss / (1024*1024)
+                        
+                        # Warmup
+                        for _ in range(10):
+                            _ = ort_session.run(None, ort_inputs)
+                            
+                        # Benchmark
+                        start_time = time.time()
+                        for _ in range(50):
+                            _ = ort_session.run(None, ort_inputs)
+                        onnx_time = time.time() - start_time
+                        onnx_latency = (onnx_time / 50.0) * 1000
+                        onnx_fps = 50.0 / onnx_time
+                        
+                        onnx_memory_after = psutil.Process(os.getpid()).memory_info().rss / (1024*1024)
+                        onnx_memory_used = max(0.1, onnx_memory_after - onnx_memory_before) + onnx_size_mb
+                        
+                        # GPU Memory (if available)
+                        gpu_mem = "N/A (CPU)"
+                        if torch.cuda.is_available():
+                            gpu_mem = f"{torch.cuda.memory_allocated() / (1024*1024):.2f} MB"
+                            
+                        # Build DataFrame matching user specifications
+                        results = {
+                            "Metric": ["Average Latency", "FPS", "Memory (CPU)", "Memory (GPU)", "Model Size"],
+                            "PyTorch": [
+                                f"{pt_latency:.2f} ms",
+                                f"{pt_fps:.1f}",
+                                f"{pt_memory_used:.1f} MB",
+                                gpu_mem,
+                                f"{size_mb:.1f} MB"
+                            ],
+                            "ONNX": [
+                                f"{onnx_latency:.2f} ms",
+                                f"{onnx_fps:.1f}",
+                                f"{onnx_memory_used:.1f} MB",
+                                gpu_mem,
+                                f"{onnx_size_mb:.1f} MB"
+                            ]
+                        }
+                        df = pd.DataFrame(results)
+                        st.table(df)
+                        st.success("Benchmark completed successfully!")
+                    except Exception as e:
+                        st.error(f"Benchmark failed: {e}")
 
 if __name__ == "__main__":
     main()

@@ -1,176 +1,124 @@
-# 🧠 EdgeMind AI
+# EdgeMind AI
 
-**A Modular Framework for Efficient Deep Learning and Edge AI**
+**A Research-Oriented Framework for Benchmarking, Explaining, and Deploying Lightweight Deep Learning Models on Edge Devices**
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Code Style: PEP8](https://img.shields.io/badge/code%20style-PEP8-orange.svg)](https://peps.python.org/pep-0008/)
+[![Framework: PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
 
 ---
 
-## Overview
+## 1. Introduction / Motivation
 
-EdgeMind AI is a research-oriented framework for studying and deploying efficient deep learning models on resource-constrained edge devices. It provides a modular pipeline covering the full lifecycle:
+EdgeMind AI is a research-oriented computer vision framework designed to evaluate lightweight deep learning models for edge deployment.
 
-**Data → Model → Training → Compression → Inference → Deployment**
+The framework enables users to:
 
-### Research Question
+- Load trained PyTorch and ONNX models
+- Perform image inference
+- Generate Grad-CAM visualizations
+- Benchmark latency, FPS and memory
+- Compare PyTorch and ONNX performance
+- Analyze deployment suitability for resource-constrained environments
 
-> *How can we systematically compress, optimize, and deploy deep learning models for resource-constrained edge environments while maintaining acceptable accuracy?*
+## 2. Research Question
 
----
+> *How does converting lightweight computer vision models from PyTorch to ONNX affect inference latency, throughput, memory usage, and deployment suitability on CPU-based edge environments?*
 
-## Architecture
+## 3. Framework Pipeline
 
 ```mermaid
-graph TB
-    subgraph Core ["🔧 Core"]
-        Config[Config System]
-        Registry[Component Registry]
-        Logger[Logger]
-        Device[Device Manager]
+graph TD
+    subgraph Phase 1: Model Training
+        Data[CIFAR-10 Dataset] --> Train[MobileNetV2 Transfer Learning]
+        Train --> Pth[Raw PyTorch Checkpoint]
     end
 
-    subgraph Pipeline ["🔬 Research Pipeline"]
-        Data[Data Pipeline]
-        Models[Model Zoo]
-        Training[Training Engine]
-        Eval[Evaluation]
+    subgraph Phase 2: Optimization
+        Pth --> Pruning[Magnitude Pruning]
+        Pruning --> Quant[INT8 Dynamic Quantization]
+        Quant --> ONNX[Export to ONNX Format]
     end
 
-    subgraph Optimization ["⚡ Optimization"]
-        Pruning[Pruning]
-        Quantization[Quantization]
-        Distillation[Knowledge Distillation]
+    subgraph Phase 3: Edge Evaluation
+        ONNX --> Bench[CPU Latency & FPS Benchmarking]
+        Pth --> XAI[Grad-CAM Explainability]
     end
-
-    subgraph Deployment ["🚀 Deployment"]
-        Inference[Inference Engine]
-        Export[ONNX Export]
-        Profiling[Edge Profiling]
-    end
-
-    subgraph Analysis ["📊 Analysis"]
-        Viz[Visualization]
-        XAI[Explainability]
-    end
-
-    Core --> Pipeline
-    Pipeline --> Optimization
-    Pipeline --> Analysis
-    Optimization --> Deployment
 ```
 
----
+## 4. Methodology
 
-## Key Features
+To answer this question, we developed a highly modular, config-driven PyTorch framework that treats the Edge AI pipeline as a rigorous scientific process:
 
-| Feature | Description |
-|---|---|
-| 🏗️ **Modular Architecture** | Plug-and-play components with registry pattern |
-| ⚙️ **Config-Driven Experiments** | YAML-based configuration for full reproducibility |
-| 🔄 **Transfer Learning** | Pretrained backbone models (MobileNet, EfficientNet, ResNet) |
-| ✂️ **Model Compression** | Pruning, quantization, knowledge distillation |
-| 📏 **Edge Profiling** | Latency, memory, and FLOPs benchmarking |
-| 🔍 **Explainability** | Grad-CAM, feature visualization |
-| 📊 **Experiment Tracking** | Built-in logging and metric recording |
+1. **Transfer Learning Architecture:** Instead of training from scratch, we leverage pre-trained architectures (e.g., MobileNetV2) and fine-tune them on localized data.
+2. **Model Compression:** We implement a two-step post-training optimization pipeline:
+   - **Magnitude Pruning:** Removing the least important neural weights (e.g., forcing 30% sparsity) to reduce computational overhead.
+   - **Dynamic INT8 Quantization:** Converting standard 32-bit floating-point weights (Float32) to 8-bit integers (INT8), dramatically shrinking the model size and speeding up CPU inference.
+3. **Hardware-Agnostic Export:** We export the raw PyTorch models to the **ONNX (Open Neural Network Exchange)** format, which is the industry standard for deploying AI to edge accelerators (like TensorRT or OpenVINO).
+4. **Explainable AI (XAI):** We implemented **Grad-CAM** (Gradient-weighted Class Activation Mapping) to visualize which specific pixels the model is looking at, ensuring the compressed model is actually learning robust features, not just memorizing noise.
 
----
+## 5. System Workflow
 
-## Installation
+The interactive benchmarking dashboard evaluates deployment readiness through the following sequential workflow:
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/edgemind-ai.git
-cd edgemind-ai
-
-# Create virtual environment (recommended)
-python -m venv venv
-venv\Scripts\activate    # Windows
-# source venv/bin/activate  # Linux/macOS
-
-# Install in development mode
-pip install -e ".[dev]"
+```mermaid
+graph TD
+    A([User loads model]) --> B[Model information extracted]
+    B --> C[Image uploaded]
+    C --> D[Prediction generated]
+    D --> E[GradCAM visualization]
+    E --> F[PyTorch benchmark]
+    F --> G[ONNX benchmark]
+    G --> H[Performance comparison]
+    H --> I([Deployment recommendation])
+    
+    style A fill:#4CAF50,stroke:#388E3C,color:white
+    style I fill:#2196F3,stroke:#1976D2,color:white
 ```
 
----
+## 6. Experimental Setup
 
-## Project Structure
+- **Dataset:** CIFAR-10 (60,000 32x32 color images across 10 classes).
+- **Backbone Model:** MobileNetV2 (Pre-trained on ImageNet).
+- **Training Hardware:** NVIDIA Tesla T4 GPU (Google Colab).
+- **Inference/Edge Hardware:** Simulated Edge CPU Environment.
+- **Hyperparameters:** Adam Optimizer, Learning Rate 0.001, Batch Size 128.
+- **Training Strategy:** 5 Epochs of full-network fine-tuning (unfrozen backbone).
 
-```
-edgemind-ai/
-├── configs/              # YAML experiment configurations
-├── edgemind/             # Main package
-│   ├── core/             # Config, logging, registry, device
-│   ├── models/           # Model zoo and backbones
-│   ├── data/             # Data loading and augmentation
-│   ├── training/         # Training engine and callbacks
-│   ├── evaluation/       # Metrics and evaluation
-│   ├── optimization/     # Pruning, quantization, distillation
-│   ├── inference/        # Inference engine and export
-│   ├── visualization/    # Plotting and visualization
-│   ├── explainability/   # Grad-CAM, feature maps
-│   └── utils/            # Shared utilities
-├── tests/                # Unit tests
-├── docs/                 # Documentation
-└── notebooks/            # Colab notebooks
-```
+## 7. Results
 
----
+The experiment yielded the following results across the pipeline:
 
-## Quick Start
+### EdgeMind AI Demo Dashboard
+![EdgeMind Streamlit UI](results/ui.PNG)
 
-```python
-from edgemind.core.config import EdgeMindConfig
-from edgemind.core.device import get_device_info
+1. **Training Performance:** By unfreezing the backbone and allowing the convolutions to adapt to the smaller 32x32 CIFAR-10 resolution, the model rapidly converged, achieving a **75.43% Validation Accuracy** in just 5 epochs (up from an initial ~38% when the backbone was frozen).
 
-# Load experiment configuration
-config = EdgeMindConfig.from_yaml("configs/base.yaml")
-print(config.project.name)  # "EdgeMind AI"
+2. **Memory Footprint:** The theoretical raw PyTorch memory size of the 2.2M parameter model was measured at **~8.7 MB** (using Float32). 
 
-# Check available hardware
-device_info = get_device_info()
-print(device_info)
-```
+3. **Edge Benchmarking (PyTorch vs. ONNX):** Using our built-in Streamlit benchmarking suite, we simulated 50 rapid inference iterations. The **ONNX Runtime** consistently achieved a significantly higher Frames Per Second (FPS) and lower Average Latency compared to the raw PyTorch execution on the CPU.
+   
+   ![Benchmarking Results](results/benchmark.PNG)
 
----
+4. **Explainability:** Grad-CAM successfully generated heatmaps overlaying the input images, visually confirming that the final convolutional layer (`features.18.0`) successfully localized the subject.
+   
+   ![Grad-CAM Results](results/result.PNG)
 
-## Research Objectives
+## 8. Discussion
 
-1. **Systematic Model Compression** — Compare pruning, quantization, and distillation under controlled conditions
-2. **Edge Deployment Analysis** — Profile inference latency and memory on simulated edge constraints
-3. **Accuracy-Efficiency Trade-offs** — Map the Pareto frontier of accuracy vs. computational cost
-4. **Reproducible Experiments** — Every experiment defined by a YAML config, every result logged
+The results strongly validate the EdgeMind AI methodology. 
+
+The initial poor performance (~38% accuracy) highlighted a critical lesson in Transfer Learning: when transferring from large-scale images (224x224 ImageNet) to very small images (32x32 CIFAR-10), the spatial dimensions collapse too quickly if the early convolutional filters are not allowed to adapt. Unfreezing the backbone proved strictly necessary.
+
+Furthermore, the benchmarking suite proved that standard PyTorch is suboptimal for production inference. Exporting the graph to ONNX allowed for specialized graph optimizations (like operator fusion) that are critical for achieving real-time FPS on weak CPU hardware. The ONNX format successfully decouples the model architecture from the training framework, making it ready for physical edge deployment.
+
+## 9. Future Work
+
+While the current pipeline successfully trains, compresses, and benchmarks edge models, several avenues remain for future research:
+
+1. **Quantization-Aware Training (QAT):** Currently, we use Post-Training Quantization (PTQ). Implementing QAT would simulate the INT8 precision *during* the training loop, likely resulting in even higher final accuracy.
+2. **Object Detection:** Extend the framework beyond Image Classification to support lightweight Object Detection architectures like YOLOv8n or SSD-MobileNet.
+3. **Physical Hardware Deployment:** Take the exported `model.onnx` file and write a C++ deployment script to run it natively on a physical Raspberry Pi 4 using the NCNN or OpenVINO runtimes to measure real-world thermal and power draw constraints.
 
 ---
-
-## Roadmap
-
-- [x] Phase 1: Project Foundation & Architecture
-- [x] Phase 2: Data Pipeline
-- [x] Phase 3: Model Zoo & Transfer Learning
-- [x] Phase 4: Training Engine
-- [x] Phase 5: Model Compression & Optimization
-- [x] Phase 6: Inference Engine & Edge Simulation
-- [x] Phase 7: Explainability & Visualization
-- [x] Phase 8: Research Report & Demo App
-
----
-
-## License
-
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-## Citation
-
-If you use EdgeMind AI in your research, please cite:
-
-```bibtex
-@software{edgemind2026,
-    title={EdgeMind AI: A Modular Framework for Efficient Deep Learning and Edge AI},
-    year={2026},
-    url={https://github.com/yourusername/edgemind-ai}
-}
-```
+*Built for Edge Computing Research*
